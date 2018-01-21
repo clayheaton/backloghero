@@ -1,6 +1,7 @@
 """
 Initialize the app in this file.
 """
+import datetime
 from settings import CONFIG_VARS
 from flask import Flask
 from flask_security import Security, login_required, \
@@ -23,8 +24,10 @@ security = Security(app, user_datastore)
 @app.before_first_request
 def create_user():
     init_db()
-    user_datastore.create_user(email=app.config["INITIAL_USER_EMAIL"],
-                               password=app.config["INITIAL_USER_PASSWORD"])
+    if not user_datastore.get_user(app.config["INITIAL_USER_EMAIL"]):
+        user_datastore.create_user(email=app.config["INITIAL_USER_EMAIL"],
+                                   password=app.config["INITIAL_USER_PASSWORD"],
+                                   confirmed_at=datetime.datetime.now())
     db_session.commit()
 
 # Views
