@@ -45,6 +45,7 @@ Thumbs.db
 # Environment #
 ###############
 *.env
+settings.py
 
 env
 env*

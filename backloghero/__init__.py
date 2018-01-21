@@ -1,7 +1,7 @@
 """
 Initialize the app in this file.
 """
-
+from settings import CONFIG_VARS
 from flask import Flask
 from flask_security import Security, login_required, \
      SQLAlchemySessionUserDatastore, current_user
@@ -10,9 +10,10 @@ from backloghero.models import User, Role
 
 # Create app
 app = Flask(__name__)
-app.config['DEBUG'] = True
-app.config['SECRET_KEY'] = 'super-secret'
-app.config['SECURITY_PASSWORD_SALT'] = 'asecretagain'
+
+# Apply app settings
+for key in CONFIG_VARS.keys():
+    app.config[key] = CONFIG_VARS[key]
 
 # Setup Flask-Security
 user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
@@ -22,13 +23,15 @@ security = Security(app, user_datastore)
 @app.before_first_request
 def create_user():
     init_db()
-    user_datastore.create_user(email='matt@nobien.net', password='password')
+    user_datastore.create_user(email=app.config["INITIAL_USER_EMAIL"],
+                               password=app.config["INITIAL_USER_PASSWORD"])
     db_session.commit()
 
 # Views
 @app.route('/')
 @login_required
 def home():
+    print("hello")
     return 'Here you go!'
 
 @app.route('/logout')
