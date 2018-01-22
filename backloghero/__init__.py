@@ -36,12 +36,6 @@ def create_user():
 def home():
     return render_template('index.html')
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return 'You are logged out'
-
 
 ############################################
 # Import additional module files
