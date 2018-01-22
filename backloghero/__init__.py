@@ -3,7 +3,7 @@ Initialize the app in this file.
 """
 import datetime
 from settings import CONFIG_VARS
-from flask import Flask
+from flask import Flask, render_template
 from flask_security import Security, login_required, \
      SQLAlchemySessionUserDatastore, current_user
 from backloghero.database import db_session, init_db
@@ -34,8 +34,7 @@ def create_user():
 @app.route('/')
 @login_required
 def home():
-    print("hello")
-    return 'Here you go!'
+    return render_template('index.html')
 
 @app.route('/logout')
 @login_required
