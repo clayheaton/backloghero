@@ -23,6 +23,8 @@ app = Flask(__name__)
 for key in CONFIG_VARS.keys():
     app.config[key] = CONFIG_VARS[key]
 
+mail = Mail(app)
+
 # Setup Flask-Security
 user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
 security = Security(app, user_datastore)
