@@ -1,13 +1,29 @@
+{% extends "base.html" %}
+
 {% from "security/_macros.html" import render_field_with_errors, render_field %}
-{% include "security/_messages.html" %}
-<h1>{{ _('Register') }}</h1>
-<form action="{{ url_for_security('register') }}" method="POST" name="register_user_form">
-  {{ register_user_form.hidden_tag() }}
-  {{ render_field_with_errors(register_user_form.email) }}
-  {{ render_field_with_errors(register_user_form.password) }}
-  {% if register_user_form.password_confirm %}
-    {{ render_field_with_errors(register_user_form.password_confirm) }}
-  {% endif %}
-  {{ render_field(register_user_form.submit) }}
-</form>
-{% include "security/_menu.html" %}
+
+{% block content %}
+
+  {% include "security/_messages.html" %}
+  <h4>{{ _('Register') }}</h4>
+  <form action="{{ url_for_security('register') }}" method="POST" name="register_user_form">
+    {{ register_user_form.hidden_tag() }}
+    {{ render_field_with_errors(register_user_form.qt3_name) }}
+    {{ render_field_with_errors(register_user_form.steam_url) }}
+    {{ render_field_with_errors(register_user_form.email) }}
+    {{ render_field_with_errors(register_user_form.password) }}
+
+    {{ render_field(register_user_form.submit) }}
+  </form>
+
+  <p>
+    Your Steam Public Profile URL should match one of these forms, with no trailing slash.
+    You can find it by going to your profile page in the Steam client, right-clicking on 
+    the page, and selecting "Copy Page URL."
+  </p>
+  <ul>
+    <li>http://steamcommunity.com/profiles/76561197997753652</li>
+    <li>http://steamcommunity.com/id/clayheaton</li>
+  </ul>
+
+{% endblock %}

@@ -25,18 +25,64 @@ for key in CONFIG_VARS.keys():
 
 mail = Mail(app)
 
+# Additional Registration Forms/Fields
+# We added some fields, so we need to customize the form for registration.
+# https://pythonhosted.org/Flask-Security/customizing.html#forms
+class ExtendedRegisterForm(RegisterForm):
+    qt3_name = StringField('Qt3 Name', [Required()])
+    steam_url = StringField('Steam Profile URL', [Required()])
+
+class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
+    qt3_name = StringField('Qt3 Name', [Required()])
+    steam_url = StringField('Steam Profile URL', [Required()])
+
+# For for updating Steam name
+class SteamUpdateNameForm(Form):
+    steamname = StringField('Steam Name', [Required()])
+
 # Setup Flask-Security
 user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
-security = Security(app, user_datastore)
+security = Security(app, user_datastore,
+                    register_form=ExtendedRegisterForm,
+                    confirm_register_form=ExtendedConfirmRegisterForm)
+
+
 
 # Create a user to test with
 @app.before_first_request
 def create_user():
     init_db()
-    if not user_datastore.get_user(app.config["INITIAL_USER_EMAIL"]):
-        user_datastore.create_user(email=app.config["INITIAL_USER_EMAIL"],
-                                   password=app.config["INITIAL_USER_PASSWORD"],
+
+    # Create the Roles "admin" and "end-user" -- unless they already exist
+    user_datastore.find_or_create_role(name='admin', description='Administrator')
+    user_datastore.find_or_create_role(name='trusted-user', description='Trusted user')
+
+    encrypted_password = utils.encrypt_password('password')
+
+    if not user_datastore.get_user('enduser@example.com'):
+        user_datastore.create_user(email='enduser@example.com',
+                                   password=encrypted_password,
                                    confirmed_at=datetime.datetime.now())
+
+    if not user_datastore.get_user('participant@example.com'):
+        user_datastore.create_user(email='participant@example.com',
+                                   password=encrypted_password,
+                                   confirmed_at=datetime.datetime.now())
+
+    # Default admin user
+    if not user_datastore.get_user(app.config["INITIAL_ADMIN_EMAIL"]):
+        user_datastore.create_user(email=app.config["INITIAL_ADMIN_EMAIL"],
+                                   password=app.config["INITIAL_ADMIN_PASSWORD"],
+                                   confirmed_at=datetime.datetime.now(),
+                                   qt3_name=app.config["INITIAL_ADMIN_QT3_NAME"],
+                                   steam_name="ccheaton",
+                                   steam_id=12345)
+    db_session.commit()
+
+    user_datastore.add_role_to_user('enduser@example.com', 'trusted-user')
+    user_datastore.add_role_to_user(app.config["INITIAL_ADMIN_EMAIL"], 'admin')
+    user_datastore.add_role_to_user(app.config["INITIAL_ADMIN_EMAIL"], 'trusted-user')
+
     db_session.commit()
 
 # Views
