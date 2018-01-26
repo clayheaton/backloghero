@@ -4,8 +4,15 @@ Initialize the app in this file.
 import datetime
 from settings import CONFIG_VARS
 from flask import Flask, render_template
-from flask_security import Security, login_required, \
-     SQLAlchemySessionUserDatastore, current_user
+from flask_security import Security, login_required, user_registered, roles_required, \
+     SQLAlchemySessionUserDatastore, current_user, RoleMixin, UserMixin, utils
+from flask_security.forms import RegisterForm, ConfirmRegisterForm, StringField, Required
+from flask_mail import Mail
+from flask_admin import Admin
+from flask_admin.contrib import sqla
+
+from flask_wtf import Form
+from wtforms.fields import PasswordField
 from backloghero.database import db_session, init_db
 from backloghero.models import User, Role
 
